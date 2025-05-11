@@ -7,7 +7,7 @@ export const authService = createApi({
   endpoints: (build) => ({
     authRegister: build.mutation<IResponse<null>, IAuth.PayloadRegister>({
       query: (payload) => ({
-        url: "/auth/register",
+        url: "api/auth/register",
         method: "POST",
         body: payload,
       }),
@@ -17,7 +17,7 @@ export const authService = createApi({
       IAuth.PayloadLogin
     >({
       query: (payload) => ({
-        url: "/auth/login",
+        url: "api/auth/login",
         method: "POST",
         body: payload,
       }),
