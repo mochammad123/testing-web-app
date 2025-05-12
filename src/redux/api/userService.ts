@@ -5,28 +5,28 @@ export const userService = createApi({
   reducerPath: "userService",
   baseQuery: baseService(),
   endpoints: (build) => ({
-    getUsers: build.query<IResponse<null>, void>({
+    getUsers: build.query<IResponse<IUser.ResponseGetUser[]>, void>({
       query: () => ({
-        url: "/users",
+        url: "api/users",
       }),
     }),
     createUser: build.mutation<IResponse<null>, IUser.PayloadCreateUser>({
       query: (payload) => ({
-        url: "/users",
+        url: "api/users",
         method: "POST",
         body: payload,
       }),
     }),
     updateUser: build.mutation<IResponse<null>, IUser.PayloadUpdateUser>({
       query: (payload) => ({
-        url: `/users/${payload.id}`,
+        url: `api/users/${payload.id}`,
         method: "PUT",
         body: payload,
       }),
     }),
     deleteUser: build.mutation<IResponse<null>, IUser.PayloadDeleteUser>({
       query: (payload) => ({
-        url: `/users/${payload.id}`,
+        url: `api/users/${payload.id}`,
         method: "DELETE",
       }),
     }),
