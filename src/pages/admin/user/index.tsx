@@ -2,7 +2,9 @@ import { useState } from "react";
 import Header from "../../../components/layout/header";
 import {
   useCreateUserMutation,
+  useDeleteUserMutation,
   useGetUsersQuery,
+  useUpdateUserMutation,
 } from "../../../redux/api/userService";
 import FormUser from "./components/form-user";
 import TableUser from "./components/table-user";
@@ -15,8 +17,11 @@ const User = () => {
     refetch,
     isLoading,
     createUser,
+    updateUser,
+    deleteUser,
     dataUser,
     onChangeDataUser,
+    onEditDataUser,
     onClearDataUser,
   } = useUser();
 
@@ -45,6 +50,61 @@ const User = () => {
       toast.error(message);
     }
   };
+
+  const handleUpdateUser = async () => {
+    try {
+      const payload: IUser.PayloadUpdateUser = {
+        id: dataUser.id,
+        name: dataUser.name,
+        username: dataUser.username,
+        password: dataUser.password,
+      };
+
+      const res = await updateUser(payload).unwrap();
+      if (res.message.includes("berhasil")) {
+        refetch();
+        toast.success(res.message);
+        onClearDataUser();
+      }
+    } catch (error: unknown) {
+      let message = "Terjadi kesalahan";
+
+      if (typeof error === "object" && error !== null && "data" in error) {
+        const typedError = error as { data: IResponse<null> };
+        message = getResponseErrorMessage(typedError.data);
+      }
+
+      toast.error(message);
+    }
+  };
+
+  const handleDeleteUser = async (id: number) => {
+    try {
+      const res = await deleteUser({ id }).unwrap();
+      if (res.message.includes("berhasil")) {
+        refetch();
+        toast.success(res.message);
+      }
+    } catch (error: unknown) {
+      let message = "Terjadi kesalahan";
+
+      if (typeof error === "object" && error !== null && "data" in error) {
+        const typedError = error as { data: IResponse<null> };
+        message = getResponseErrorMessage(typedError.data);
+      }
+
+      toast.error(message);
+    }
+  };
+
+  const onSave = () => {
+    if (dataUser.id === 0) {
+      handleCreateUser();
+    } else {
+      handleUpdateUser();
+    }
+  };
+
   return (
     <>
       <Header />
@@ -54,13 +114,15 @@ const User = () => {
           <FormUser
             dataUser={dataUser}
             onChangeUser={onChangeDataUser}
-            onSave={handleCreateUser}
+            onSave={onSave}
             onReset={onClearDataUser}
           />
           <TableUser
             data={dataSource}
             loading={isLoading}
             className="col-span-2"
+            onEdit={onEditDataUser}
+            onDelete={handleDeleteUser}
           />
         </div>
       </div>
@@ -73,6 +135,8 @@ export default User;
 const useUser = () => {
   const { data, isLoading, isFetching, refetch } = useGetUsersQuery();
   const [createUser, { isLoading: isLoadingCreate }] = useCreateUserMutation();
+  const [updateUser, { isLoading: isLoadingUpdate }] = useUpdateUserMutation();
+  const [deleteUser, { isLoading: isLoadingDelete }] = useDeleteUserMutation();
 
   const [dataUser, setDataUser] = useState<{
     id: number;
@@ -88,17 +152,34 @@ const useUser = () => {
     setDataUser({ ...dataUser, [key]: value });
   };
 
+  const onEditDataUser = (data: IUser.ResponseGetUser) => {
+    setDataUser({
+      id: data.id,
+      name: data.name,
+      username: data.username,
+      password: "",
+    });
+  };
+
   const onClearDataUser = () => {
     setDataUser({ id: 0, name: "", username: "", password: "" });
   };
 
   return {
     dataSource: data?.result || [],
-    isLoading: isLoading || isFetching || isLoadingCreate,
+    isLoading:
+      isLoading ||
+      isFetching ||
+      isLoadingCreate ||
+      isLoadingUpdate ||
+      isLoadingDelete,
     createUser,
+    updateUser,
+    deleteUser,
     refetch,
     dataUser,
     onChangeDataUser,
+    onEditDataUser,
     onClearDataUser,
   };
 };

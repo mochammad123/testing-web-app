@@ -1,10 +1,14 @@
 const TableUser = ({
   data,
   loading,
+  onEdit,
+  onDelete,
   className,
 }: {
   data: IUser.ResponseGetUser[];
   loading: boolean;
+  onEdit: (item: IUser.ResponseGetUser) => void;
+  onDelete: (id: number) => void;
   className?: string;
 }) => {
   return (
@@ -38,8 +42,21 @@ const TableUser = ({
                 <td className="border border-sky-950 px-2">{item.name}</td>
                 <td className="border border-sky-950 px-2">{item.username}</td>
                 <td className="border border-sky-950 px-2">
-                  <span className="cursor-pointer">Edit</span> |{" "}
-                  <span className="cursor-pointer">Delete</span>
+                  <div className="flex">
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => onEdit(item)}
+                    >
+                      Edit
+                    </div>{" "}
+                    |
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => onDelete(item.id)}
+                    >
+                      Delete
+                    </div>
+                  </div>
                 </td>
               </tr>
             ))
